@@ -23,7 +23,8 @@ PRODUCT_PACKAGES += \
     Recorder \
     Seedvault \
     ThemesStub \
-    WallpaperPicker2
+    WallpaperPicker2 \
+    BOSWallpapers
 
 # Config
 PRODUCT_PACKAGES += \
