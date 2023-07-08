@@ -6,7 +6,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     Aperture \
     BlissUpdater \
+    BlissSystemUI \
     Contacts \
+    Covers \
     DeskClock \
     Dialer \
     Email \
