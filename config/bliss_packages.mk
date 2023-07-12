@@ -8,7 +8,6 @@ PRODUCT_PACKAGES += \
     BlissUpdater \
     BlissSystemUI \
     Contacts \
-    Covers \
     DeskClock \
     Dialer \
     Email \
