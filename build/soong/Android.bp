@@ -84,6 +84,23 @@ gralloc_10_usage_bits {
 }
 
 soong_config_module_type {
+    name: "gralloc_handle_custom_content_md_reserved_size",
+    module_type: "cc_defaults",
+    config_namespace: "blissGlobalVars",
+    bool_variables: ["gralloc_handle_has_custom_content_md_reserved_size"],
+    properties: ["export_cflags"],
+}
+
+gralloc_handle_custom_content_md_reserved_size {
+    name: "gralloc_handle_has_custom_content_md_reserved_size_defaults",
+    soong_config_variables: {
+        gralloc_handle_has_custom_content_md_reserved_size: {
+            export_cflags: ["-DGRALLOC_HANDLE_HAS_CUSTOM_CONTENT_MD_RESERVED_SIZE"],
+        },
+    },
+}
+
+soong_config_module_type {
     name: "gralloc_handle_reserved_size",
     module_type: "cc_defaults",
     config_namespace: "blissGlobalVars",
@@ -156,6 +173,23 @@ surfaceflinger_udfps_lib {
 }
 
 soong_config_module_type {
+    name: "needs_camera_boottime",
+    module_type: "cc_defaults",
+    config_namespace: "blissGlobalVars",
+    bool_variables: ["needs_camera_boottime"],
+    properties: ["cppflags"],
+}
+
+needs_camera_boottime {
+    name: "needs_camera_boottime_defaults",
+    soong_config_variables: {
+        needs_camera_boottime: {
+            cppflags: ["-DTARGET_CAMERA_BOOTTIME_TIMESTAMP"],
+        },
+    },
+}
+
+soong_config_module_type {
     name: "camera_needs_client_info",
     module_type: "cc_defaults",
     config_namespace: "blissGlobalVars",
@@ -189,6 +223,48 @@ camera_needs_client_info_lib {
         camera_needs_client_info_lib: {
             cppflags: ["-DCAMERA_NEEDS_CLIENT_INFO_LIB"],
             shared_libs: ["//hardware/oneplus:vendor.oneplus.hardware.camera@1.0"],
+        },
+    },
+}
+
+soong_config_module_type {
+    name: "camera_needs_client_info_lib_oplus",
+    module_type: "cc_defaults",
+    config_namespace: "blissGlobalVars",
+    bool_variables: ["camera_needs_client_info_lib_oplus"],
+    properties: [
+        "cppflags",
+        "shared_libs",
+    ],
+}
+
+camera_needs_client_info_lib_oplus {
+    name: "camera_needs_client_info_lib_oplus_defaults",
+    soong_config_variables: {
+        camera_needs_client_info_lib_oplus: {
+            cppflags: ["-DCAMERA_NEEDS_CLIENT_INFO_LIB_OPLUS"],
+            shared_libs: ["vendor.oplus.hardware.cameraMDM@2.0"],
+        },
+    },
+}
+
+soong_config_module_type {
+    name: "bootloader_message_offset",
+    module_type: "cc_defaults",
+    config_namespace: "blissGlobalVars",
+    value_variables: ["bootloader_message_offset"],
+    properties: [
+        "cflags",
+        "export_cflags",
+    ],
+}
+
+bootloader_message_offset {
+    name: "bootloader_message_offset_defaults",
+    soong_config_variables: {
+        bootloader_message_offset: {
+            cflags: ["-DBOARD_RECOVERY_BLDRMSG_OFFSET=%s"],
+            export_cflags: ["-DBOARD_RECOVERY_BLDRMSG_OFFSET=%s"],
         },
     },
 }
@@ -285,25 +361,6 @@ qti_usb_hal_supported_modes {
         },
         supports_debug_accessory: {
             cppflags: ["-DSUPPORTS_DEBUG_ACCESSORY"],
-        },
-    },
-}
-
-soong_config_module_type {
-    name: "camera_boottime_timestamp",
-    module_type: "cc_defaults",
-    config_namespace: "blissQcomVars",
-    bool_variables: ["needs_camera_boottime_timestamp"],
-    properties: [
-        "cflags",
-    ],
-}
-
-camera_boottime_timestamp {
-    name: "needs_camera_boottime_defaults",
-    soong_config_variables: {
-        needs_camera_boottime_timestamp: {
-            cflags: ["-DTARGET_CAMERA_BOOTTIME_TIMESTAMP"],
         },
     },
 }

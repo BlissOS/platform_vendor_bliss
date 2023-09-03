@@ -25,7 +25,8 @@ PRODUCT_PACKAGES += \
     Seedvault \
     ThemesStub \
     WallpaperPicker2 \
-    BOSWallpapers
+    BOSWallpapers \
+    WeatherIcons
 
 # Config
 PRODUCT_PACKAGES += \
