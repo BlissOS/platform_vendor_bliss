@@ -39,7 +39,14 @@ else
     BLISS_BUILDTYPE := UNOFFICIAL
 endif
 
-BLISS_TYPE_NAME := Bliss$(BLISS_SPECIAL_VARIANT)
+# See if RELEASE_OS_TITLE is defined, and if not, use the current title
+ifeq ($(RELEASE_OS_TITLE),)
+RELEASE_OS_TITLE := Bliss
+else
+RELEASE_OS_TITLE := $(RELEASE_OS_TITLE)
+endif
+
+BLISS_TYPE_NAME := $(RELEASE_OS_TITLE)$(BLISS_SPECIAL_VARIANT)
 
 # Set BLISS version
 ifdef BLISS_RELEASE
