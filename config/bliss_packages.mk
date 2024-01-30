@@ -8,7 +8,7 @@ PRODUCT_PACKAGES += \
     BlissUpdater \
     BlissSystemUI \
     Contacts \
-    Covers \
+    BOSWallpapers \
     DeskClock \
     Dialer \
     Email \
