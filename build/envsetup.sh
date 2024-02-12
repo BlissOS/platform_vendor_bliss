@@ -1,3 +1,22 @@
+vendor_name="bliss"
+#setup colors
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+blue=`tput setaf 4`
+purple=`tput setaf 5`
+teal=`tput setaf 6`
+light=`tput setaf 7`
+dark=`tput setaf 8`
+ltred=`tput setaf 9`
+ltgreen=`tput setaf 10`
+ltyellow=`tput setaf 11`
+ltblue=`tput setaf 12`
+ltpurple=`tput setaf 13`
+CL_CYN=`tput setaf 12`
+CL_RST=`tput sgr0`
+reset=`tput sgr0`
+
 function __print_bliss_functions_help() {
 cat <<EOF
 Additional BlissRoms functions:
@@ -23,6 +42,10 @@ Additional BlissRoms functions:
 - installrecovery: Installs a recovery.img to the connected device.
 - blissify:        Sets up build environment using breakfast(),
                    and then compiles using mka() against blissify target.
+- get_build_var:   Will get the exact value of a build variable.
+- set_blissified_configs: Will setup all configs based on environment flags already exported.
+- update_apps:     Will update FOSS apps given your version of vendor/agp-apps supports it.
+- build-x86:       Will start the build script for PC builds (Use "build-x86 -h" for help).
 EOF
 }
 
@@ -1086,6 +1109,299 @@ function blissify()
         return 1
     fi
     return $?
+}
+
+# save the official lunch command to aosp_lunch() and source it
+tmp_lunch=`mktemp`
+# source the official lunch command
+sed '/ lunch()/,/^}/!d'  build/envsetup.sh | sed 's/function lunch/function aosp_lunch/' > ${tmp_lunch}
+source ${tmp_lunch}
+rm -f ${tmp_lunch}
+
+# Override lunch function to filter lunch targets
+function lunch
+{
+    local T=$(gettop)
+    if [ ! "$T" ]; then
+        echo "[lunch] Couldn't locate the top of the tree.  Try setting TOP." >&2
+        return
+    fi
+
+    if [ "$BASS_DEBUG" != "true" ] ; then
+    set_blissified_configs
+    update_apps
+    fi
+    aosp_lunch $*
+
+}
+
+
+function update_apps()
+{
+    if [ "$UPDATE_FOSSAPPS" = "true" ]; then
+        if [ "$USE_FOSSAPPS" = "true" ]; then
+            echo -e "Updating FOSS apps now..."
+            echo ""
+            $(cd vendor/foss && bash update.sh 1)
+            echo -e "FOSS apps updated"
+        fi
+
+        if [ "$USE_BLISS_GARLIC_LAUNCHER" = "true" ]; then
+            echo -e "Updating Garlic Player now..."
+            echo ""
+            $(cd vendor/agp-apps/tools/fossapp-updates && bash update.sh 1 -f garlic_player -r izzy -p com.sagiadinos.garlic.player -b USE_BLISS_GARLIC_LAUNCHER)
+            echo -e "Garlic player updated"
+        fi
+
+        if [ "$USE_SMARTDOCK" = "true" ]; then
+            echo -e "Updating SmartDock now..."
+            echo ""
+            $(cd vendor/agp-apps/tools/fossapp-updates && bash update.sh 1 -f smart_dock -r fdroid -p cu.axel.smartdock -b USE_SMARTDOCK)
+        fi
+    fi
+}
+
+function set_blissified_configs()
+{    
+    if [ "$USE_BLISS_KIOSK_LAUNCHER" = "true" ]; then
+        echo -e "Kiosk launcher selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/kiosk/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/kiosk/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/kiosk/dgc/* device/generic/common/
+        sed -i 's/config_freeformWindowManagement">true/config_freeformWindowManagement">false/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        
+        echo -e "Grub configs updated"
+    fi
+    if [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]] || [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "true" ]]; then
+        echo -e "Restricted launcher selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/restricted/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/restricted/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/restricted/dgc/* device/generic/common/
+        sed -i 's/config_freeformWindowManagement">true/config_freeformWindowManagement">false/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+       
+        echo -e "Grub configs updated"
+    fi
+
+    if [ "$USE_BLISS_GAME_MODE_LAUNCHER" = "true" ]; then
+        echo -e "Game-Mode launcher selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/game_mode/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/game_mode/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/game_mode/dgc/* device/generic/common/
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+
+        echo -e "Grub configs updated"
+    fi
+
+    if [ "$USE_BLISS_CROSS_LAUNCHER" = "true" ]; then
+        echo -e "Game-Mode CrossLauncher selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/crosslauncher/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/crosslauncher/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/crosslauncher/dgc/* device/generic/common/
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+
+        echo -e "Grub configs updated"
+    fi
+  
+    if [ "$BLISS_SECURE_LOCKDOWN_BUILD" = "true" ]; then
+        echo -e "Secure lockdown branding selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/lockdown/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/lockdown/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/kiosk/dgc/* device/generic/common/
+        
+        echo -e "Grub configs updated"
+    fi
+    if [ "$USE_SMARTDOCK" = "true" ]; then
+        echo -e "Desktop launcher selected. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/desktop/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/desktop/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        cp -r vendor/$vendor_name/config/config_defaults/desktop/dgc/* device/generic/common/
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        
+        echo -e "Grub configs updated"
+    fi
+    if [ "$USE_ALWAYS_ON_SETTINGS" = "true" ]; then
+        echo -e "Using always on settings. Updating configs now..."
+        echo ""
+        sed -i 's/def_screen_off_timeout">900000/def_screen_off_timeout">600000000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_sleep_timeout">86400000/def_sleep_timeout">-1/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_screen_off_timeout">900000/def_screen_off_timeout">600000000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_sleep_timeout">86400000/def_sleep_timeout">-1/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_lockscreen_disabled">false/def_lockscreen_disabled">true/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        
+        echo -e "Configs updated"
+    else
+        echo -e "Not using always on settings. Updating configs now..."
+        sed -i 's/def_screen_off_timeout">600000000/def_screen_off_timeout">900000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_sleep_timeout">-1/def_sleep_timeout">86400000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_screen_off_timeout">600000000/def_screen_off_timeout">900000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_sleep_timeout">-1/def_sleep_timeout">86400000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_lockscreen_disabled">true/def_lockscreen_disabled">false/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        
+        echo -e "Configs updated"
+    fi
+    if [ "$USE_SHOW_KEYBOARD" = "true" ]; then
+        echo -e "Show IME with hard keyboard selected. Updating configs now..."
+        echo ""
+        sed -i 's/def_show_ime_with_hard_keyboard">false/def_show_ime_with_hard_keyboard">true/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_show_ime_with_hard_keyboard">false/def_show_ime_with_hard_keyboard">true/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+
+        echo -e "Configs updated"
+    else
+        echo -e "Show IME with hard keyboard not selected. Updating configs now..."
+        echo ""
+        sed -i 's/def_show_ime_with_hard_keyboard">true/def_show_ime_with_hard_keyboard">false/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+        sed -i 's/def_show_ime_with_hard_keyboard">true/def_show_ime_with_hard_keyboard">false/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+
+        echo -e "Configs updated"
+    fi
+    if [ "$USE_PER_DISPLAY_FOCUS" = "true" ]; then
+        echo -e "Use per display focus. Updating configs now..."
+        echo ""
+        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+
+        echo -e "Configs updated"
+    else
+        echo -e "Use per display focus not selected. Updating configs now..."
+        echo ""
+        sed -i 's/config_perDisplayFocusEnabled">true/config_perDisplayFocusEnabled">false/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_perDisplayFocusEnabled">true/config_perDisplayFocusEnabled">false/g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+
+        echo -e "Configs updated"
+    fi
+    if [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GARLIC_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
+        echo -e "Defaulting to Tablet launcher. Copying configs now..."
+        echo ""
+        cp -r vendor/$vendor_name/config/grub_configs/tablet/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
+        cp -r vendor/$vendor_name/config/grub_configs/tablet/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
+        echo -e "Grub configs updated"
+    fi
+    if [ "$BLISS_TABLET_NAVIGATION" = "true" ]; then
+        cp -r vendor/$vendor_name/config/config_defaults/tablet/dgc/* device/generic/common/
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/"config_navBarInteractionMode">2/"config_navBarInteractionMode">0/' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+
+    fi
+    if [ "$BLISS_GESTURE_NAVIGATION" = "true" ]; then
+        sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's/"config_navBarInteractionMode">0/"config_navBarInteractionMode">2/' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+    fi
+
+    if [ "$BLISS_SEPARATE_RECENTS_ACTIVITY" = "true" ]; then
+        sed -i 's/"SEPARATE_RECENTS_ACTIVITY", false,/"SEPARATE_RECENTS_ACTIVITY", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+    fi
+
+    if [ "$BLISS_DISABLE_DEVICE_SEARCH" = "true" ]; then
+        sed -i 's/"ENABLE_DEVICE_SEARCH", true,/"ENABLE_DEVICE_SEARCH", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+    fi
+    
+    if [ "$BLISS_DISABLE_DEVICE_SEARCH" = "true" ]; then
+        sed -i 's/"ENABLE_DEVICE_SEARCH", true,/"ENABLE_DEVICE_SEARCH", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+    fi
+
+    if [ "$BLISS_CLEAR_HOTSEAT_FAVORITES" = "true" ]; then
+        # Look for all filenames with "default_workspace*.xml" in packages/apps/Launcher3/res/xml/ and add them to WORKSPACE_LIST
+        WORKSPACE_LIST=$(find packages/apps/Launcher3/res/xml/ -type f -name "default_workspace*.xml")
+        # loop through the files in WORKSPACE_LIST and remove all lines between <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3"> and </favorites>
+        for file in $WORKSPACE_LIST
+        do
+            sed -i '/<resolve/,/<\/resolve>/d' $file
+        done
+
+    fi
+
+    if [ "$BLISS_LAUNCHER3_TASKBAR_NAVIGATION" = "true" ]; then
+        sed -i 's/"ENABLE_TASKBAR", false,/"ENABLE_TASKBAR", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        sed -i 's/android:key="enable_taskbar" android:defaultValue="false"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml
+    else
+        sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        sed -i 's/android:key="enable_taskbar" android:defaultValue="true"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml
+    fi
+
+    if [ "$BLISS_REMOVE_KSU" = "true" ]; then
+        echo "Removing KSU config from kernel"
+        sed -i 's/CONFIG_KSU=y/\# CONFIG_KSU is not set/' kernel/arch/x86/configs/android-x86_64_defconfig
+    else
+        echo "Adding KSU config to kernel"
+        sed -i 's/\# CONFIG_KSU is not set/CONFIG_KSU=y/' kernel/arch/x86/configs/android-x86_64_defconfig
+    fi
+
+    if [ "$BLISS_DISABLE_LARGE_SCREEN_SETTINGS" = "true" ]; then
+        echo "Disabling large screen settings"
+        sed -i 's/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "true");/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "false");/' frameworks/base/core/java/android/util/FeatureFlagUtils.java
+    else
+        echo "Enabling large screen settings"
+        sed -i 's/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "false");/DEFAULT_FLAGS.put(SETTINGS_SUPPORT_LARGE_SCREEN, "true");/' frameworks/base/core/java/android/util/FeatureFlagUtils.java
+    fi
+
+    if [ "$BLISS_USE_SYSTEMUI_RECENTS" = "true" ]; then
+        echo "Enabling SystemUI recents"
+        sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+    else
+        echo "Enabling Quickstep recents"
+        sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
+        sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
+        sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
+    fi
+}
+
+# Get the exact value of a build variable.
+function get_build_var()
+{
+    if [ "$1" = "COMMON_LUNCH_CHOICES" ]; then
+        valid_targets=`mixinup -t`
+        save=`build/soong/soong_ui.bash --dumpvar-mode $1`
+        unset LUNCH_MENU_CHOICES
+        for t in ${save[@]}; do
+            array=(${t/-/ })
+            target=${array[0]}
+            if [[ "${valid_targets}" =~ "$target" ]]; then
+                   LUNCH_MENU_CHOICES+=($t)
+            fi
+        done
+        echo ${LUNCH_MENU_CHOICES[@]}
+        return
+    else
+        if [ "$BUILD_VAR_CACHE_READY" = "true" ]; then
+            eval "echo \"\${var_cache_$1}\""
+            return
+        fi
+
+        local T=$(gettop)
+        if [ ! "$T" ]; then
+            echo "Couldn't locate the top of the tree.  Try setting TOP." >&2
+            return
+        fi
+        (\cd $T; build/soong/soong_ui.bash --dumpvar-mode $1)
+    fi
+}
+
+function build-x86()
+{
+	args=("$@")
+    bash vendor/$vendor_name/tools/build-x86.sh "${args[@]}"
+
 }
 
 # Override host metadata to make builds more reproducible and avoid leaking info
