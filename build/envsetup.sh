@@ -1232,7 +1232,7 @@ function set_blissified_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        # sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
         
         echo -e "Grub configs updated"
     fi
@@ -1241,8 +1241,6 @@ function set_blissified_configs()
         echo ""
         sed -i 's/def_screen_off_timeout">900000/def_screen_off_timeout">600000000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         sed -i 's/def_sleep_timeout">86400000/def_sleep_timeout">-1/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_screen_off_timeout">900000/def_screen_off_timeout">600000000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_sleep_timeout">86400000/def_sleep_timeout">-1/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         sed -i 's/def_lockscreen_disabled">false/def_lockscreen_disabled">true/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         
         echo -e "Configs updated"
@@ -1250,8 +1248,6 @@ function set_blissified_configs()
         echo -e "Not using always on settings. Updating configs now..."
         sed -i 's/def_screen_off_timeout">600000000/def_screen_off_timeout">900000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         sed -i 's/def_sleep_timeout">-1/def_sleep_timeout">86400000/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_screen_off_timeout">600000000/def_screen_off_timeout">900000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_sleep_timeout">-1/def_sleep_timeout">86400000/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         sed -i 's/def_lockscreen_disabled">true/def_lockscreen_disabled">false/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
         
         echo -e "Configs updated"
@@ -1260,30 +1256,26 @@ function set_blissified_configs()
         echo -e "Show IME with hard keyboard selected. Updating configs now..."
         echo ""
         sed -i 's/def_show_ime_with_hard_keyboard">false/def_show_ime_with_hard_keyboard">true/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_show_ime_with_hard_keyboard">false/def_show_ime_with_hard_keyboard">true/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-
+        
         echo -e "Configs updated"
     else
         echo -e "Show IME with hard keyboard not selected. Updating configs now..."
         echo ""
         sed -i 's/def_show_ime_with_hard_keyboard">true/def_show_ime_with_hard_keyboard">false/g' device/generic/common/overlay/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-        sed -i 's/def_show_ime_with_hard_keyboard">true/def_show_ime_with_hard_keyboard">false/g' vendor/$vendor_name/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
-
+        
         echo -e "Configs updated"
     fi
     if [ "$USE_PER_DISPLAY_FOCUS" = "true" ]; then
         echo -e "Use per display focus. Updating configs now..."
         echo ""
         sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/config_perDisplayFocusEnabled">false/config_perDisplayFocusEnabled">true/g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
-
+        
         echo -e "Configs updated"
     else
         echo -e "Use per display focus not selected. Updating configs now..."
         echo ""
         sed -i 's/config_perDisplayFocusEnabled">true/config_perDisplayFocusEnabled">false/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/config_perDisplayFocusEnabled">true/config_perDisplayFocusEnabled">false/g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
-
+        
         echo -e "Configs updated"
     fi
     if [[ "$USE_BLISS_KIOSK_LAUNCHER" = "false" ]] && [[ "$BLISS_SECURE_LOCKDOWN_BUILD" = "false" ]] && [[ "$USE_SMARTDOCK" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "false" ]] && [[ "$USE_BLISS_GARLIC_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_GAME_MODE_LAUNCHER" = "false" ]] && [[ "$USE_BLISS_CROSS_LAUNCHER" = "false" ]]; then
@@ -1297,13 +1289,11 @@ function set_blissified_configs()
         cp -r vendor/$vendor_name/config/config_defaults/tablet/dgc/* device/generic/common/
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/"config_navBarInteractionMode">2/"config_navBarInteractionMode">0/' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
-
+        
     fi
     if [ "$BLISS_GESTURE_NAVIGATION" = "true" ]; then
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's/"config_navBarInteractionMode">0/"config_navBarInteractionMode">2/' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
     fi
 
     if [ "$BLISS_SEPARATE_RECENTS_ACTIVITY" = "true" ]; then
@@ -1330,10 +1320,10 @@ function set_blissified_configs()
     fi
 
     if [ "$BLISS_LAUNCHER3_TASKBAR_NAVIGATION" = "true" ]; then
-        sed -i 's/"ENABLE_TASKBAR", false,/"ENABLE_TASKBAR", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        # sed -i 's/"ENABLE_TASKBAR", false,/"ENABLE_TASKBAR", true,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
         sed -i 's/android:key="enable_taskbar" android:defaultValue="false"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="true"/' packages/apps/Blissify/res/xml/blissify_button.xml
     else
-        sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
+        # sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
         sed -i 's/android:key="enable_taskbar" android:defaultValue="true"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml || sed -i 's/android:key="enable_taskbar"/android:key="enable_taskbar" android:defaultValue="false"/' packages/apps/Blissify/res/xml/blissify_button.xml
     fi
 
@@ -1357,12 +1347,10 @@ function set_blissified_configs()
         echo "Enabling SystemUI recents"
         sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's#com.android.launcher3/com.android.quickstep.RecentsActivity#com.android.systemui/.recents.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
     else
         echo "Enabling Quickstep recents"
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' frameworks/base/core/res/res/values/config.xml
         sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' device/generic/common/overlay/frameworks/base/core/res/res/values/config.xml
-        sed -i 's#com.android.systemui/.recents.RecentsActivity#com.android.launcher3/com.android.quickstep.RecentsActivity#g' vendor/$vendor_name/overlay/common/frameworks/base/core/res/res/values/config.xml
     fi
 }
 
