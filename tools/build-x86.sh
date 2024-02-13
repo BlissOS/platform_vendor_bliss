@@ -42,6 +42,7 @@ export FORCE_NAVBAR_ON_SECONDARY_DISPLAYS=false
 export FORCE_STATUSBAR_ON_SECONDARY_DISPLAYS=false
 export BLISS_DISABLE_LARGE_SCREEN_SETTINGS=false
 export BLISS_USE_SYSTEMUI_RECENTS=false
+export BLISS_CLEAR_DW_HOTSEAT=false
 
 # Help dialog
 function displayHelp() {
@@ -89,6 +90,7 @@ function displayHelp() {
     echo "-a, --atom             Enable Intel Atom"
     echo "-l, --lockdown         Enable secure lockdown build"
     echo "--clearhotseat         Enable clear hotseat favorites"
+    echo "--cleardwhotseat       Enable clear dw hotseat favorites"
     echo "-m, --manifest         Generate manifest"
     echo "--showkeyboard         Enable show keyboard"
     echo "--alwaysonsettings     Enable always on settings"
@@ -232,6 +234,10 @@ while [[ $# -gt 0 ]]; do
             BLISS_CLEAR_HOTSEAT_FAVORITES=true
             shift
             ;;
+        --cleardwhotseat)
+            BLISS_CLEAR_DW_HOTSEAT=true
+            shift
+            ;;
         --buildextra)
             BUILD_EXTRA_PACKAGES="$2"
             shift
@@ -369,7 +375,8 @@ export USE_MOUSE_PRESENTATION=${USE_MOUSE_PRESENTATION:-false} \
 export FORCE_NAVBAR_ON_SECONDARY_DISPLAYS=${FORCE_NAVBAR_ON_SECONDARY_DISPLAYS:-false} \
 export FORCE_STATUS_BAR_ON_SECONDARY_DISPLAYS=${FORCE_STATUS_BAR_ON_SECONDARY_DISPLAYS:-false} \
 export BLISS_DISABLE_LARGE_SCREEN_SETTINGS=${BLISS_DISABLE_LARGE_SCREEN_SETTINGS:-false} \
-export BLISS_USE_SYSTEMUI_RECENTS=${BLISS_USE_SYSTEMUI_RECENTS:-false} 
+export BLISS_USE_SYSTEMUI_RECENTS=${BLISS_USE_SYSTEMUI_RECENTS:-false} \
+export BLISS_CLEAR_DW_HOTSEAT=${BLISS_CLEAR_DW_HOTSEAT:-false} 
 
 echo "Title: ${RELEASE_OS_TITLE}";
 echo "SmartDock: ${USE_SMARTDOCK}";
@@ -398,6 +405,7 @@ echo "GameModeLauncher: ${USE_BLISS_GAME_MODE_LAUNCHER}";
 echo "CrossLauncher: ${USE_BLISS_CROSS_LAUNCHER}";
 echo "PowerManager: ${USE_BLISS_POWER_MANAGER}";
 echo "ClearHotseatFavorites: ${BLISS_CLEAR_HOTSEAT_FAVORITES}";
+echo "ClearDWHotseat: ${BLISS_CLEAR_DW_HOTSEAT}";
 echo "BuildExtraPackages: ${BUILD_EXTRA_PACKAGES}";
 echo "ShowKeyboard: ${USE_SHOW_KEYBOARD}";
 echo "AlwaysOnSettings: ${USE_ALWAYS_ON_SETTINGS}";
