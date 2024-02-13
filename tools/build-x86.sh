@@ -108,7 +108,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -c|--clean)
             echo "Cleaning..."
-            CLEAN_COMMAND="make clean && "
+            CLEAN_COMMAND="make clean"
             shift
             ;;
         -d|--dirty)
