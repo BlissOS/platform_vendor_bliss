@@ -20,6 +20,8 @@ PRODUCT_PACKAGES += \
     Glimpse \
     Jelly \
     LatinIME \
+    LMOFreeform \
+    LMOFreeformSidebar \
     messaging \
     OmniJaws \
     ParallelSpace \
