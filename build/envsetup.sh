@@ -31,6 +31,7 @@ function blissify()
 	cd $abt
 	clean="n"
 	deviceclean="n"
+	TARGET_BUILD_VARIANT="userdebug"
 	export BLISS_BUILD_VARIANT=vanilla
 	while test $# -gt 0
 	do
@@ -140,13 +141,13 @@ function blissify()
 		return 0
 	fi
 
-	# Breakfast extension	
-	if [ $TARGET_BUILD_VARIANT == "user" ];then
-		breakfast $* user
-	elif [ $TARGET_BUILD_VARIANT == "eng" ];then
-		breakfast $* eng
+	# Breakfast extension
+	if [ "$TARGET_BUILD_VARIANT" == "user" ];then
+		breakfast "$@" user
+	elif [ "$TARGET_BUILD_VARIANT" == "eng" ];then
+		breakfast "$@" eng
 	else
-    	breakfast $*
+		breakfast "$@"
 	fi
 	
 	if [ $clean == "y" ];then

@@ -31,7 +31,7 @@ ifeq ($(TARGET_BUILD_VARIANT),eng)
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
 else
 ifdef WITH_ADB_INSECURE
-# Forcebly disable ADB authentication
+# Forcibly disable ADB authentication
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.adb.secure=0
 else
 # Enable ADB authentication
@@ -286,8 +286,6 @@ PRODUCT_EXTRA_RECOVERY_KEYS += \
 -include vendor/bliss/config/bootanimation.mk
 
 include vendor/bliss/config/version.mk
-
--include vendor/bliss-priv/keys/keys.mk
 
 -include $(WORKSPACE)/build_env/image-auto-bits.mk
 -include vendor/bliss/config/partner_gms.mk

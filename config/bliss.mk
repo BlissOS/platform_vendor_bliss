@@ -44,7 +44,7 @@ PRODUCT_COPY_FILES += \
 endif
 
 # Keys
-ifeq ($(BLISS_BUILD_TYPE),OFFICIAL)
+ifeq ($(BLISS_BUILDTYPE),OFFICIAL)
 include vendor/bliss-priv/keys/keys.mk
 else
 -include vendor/bliss-priv/keys/keys.mk
